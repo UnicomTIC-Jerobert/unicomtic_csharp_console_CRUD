@@ -6,3 +6,10 @@ Figure Out any Enhancement or bug fixes going to do
 
 This code have all things in single file
 more beginner friendly
+
+
+video - 4
+
+we try to introduce "SELECT * FROM Employees where EmployeeId=@empId"
+understand how code gets duplicated
+understand whats the problem with current code

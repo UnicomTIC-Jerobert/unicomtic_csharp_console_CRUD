@@ -114,6 +114,10 @@ namespace EmployeeCRUDApp
             Console.Write("Enter Employee ID to update: ");
             int employeeID = int.Parse(Console.ReadLine());
 
+            // to-do
+            // SELECT * FROM Employees where EmployeeId=@empId
+            // executeNonQuery
+
             Console.Write("Enter new First Name: ");
             string newFirstName = Console.ReadLine();
             Console.Write("Enter new Last Name: ");
@@ -146,12 +150,18 @@ namespace EmployeeCRUDApp
         {
             Console.Write("Enter Employee ID to delete: ");
             int employeeID = int.Parse(Console.ReadLine());
+
+
+            // to-do
+            // SELECT * FROM Employees where EmployeeId=@empId
+            // executeNonQuery
+
             string deleteQuery = "DELETE FROM Employees WHERE EmployeeID = @EmployeeID";
 
             using (var command = new SqliteCommand(deleteQuery, connection))
             {
                 command.Parameters.AddWithValue("@EmployeeID", employeeID);
-                
+
                 int rowsAffected = command.ExecuteNonQuery();
                 if (rowsAffected > 0)
                 {
