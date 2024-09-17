@@ -55,16 +55,17 @@ namespace EmployeeCRUDApp
                 }
             }
         }
+
         // Open the SQLite connection
         static SqliteConnection OpenConnection()
         {
             var connection = new SqliteConnection("Data Source=employee.db;");
             connection.Open();
             string createTableQuery = @"CREATE TABLE IF NOT EXISTS Employees (
-EmployeeID INTEGER PRIMARY KEY AUTOINCREMENT,
-FirstName TEXT NOT NULL,
-LastName TEXT NOT NULL,
-DateOfBirth TEXT NOT NULL)";
+                EmployeeID INTEGER PRIMARY KEY AUTOINCREMENT,
+                FirstName TEXT NOT NULL,
+                LastName TEXT NOT NULL,
+                DateOfBirth TEXT NOT NULL)";
             using (var command = new SqliteCommand(createTableQuery, connection))
             {
                 command.ExecuteNonQuery();
@@ -80,9 +81,9 @@ DateOfBirth TEXT NOT NULL)";
             string lastName = Console.ReadLine();
             Console.Write("Enter Date of Birth (yyyy-mm-dd): ");
             string dob = Console.ReadLine();
-            
+
             string insertQuery = "INSERT INTO Employees (FirstName, LastName, DateOfBirth) VALUES(@FirstName, @LastName, @DateOfBirth)";
-        using (var command = new SqliteCommand(insertQuery, connection))
+            using (var command = new SqliteCommand(insertQuery, connection))
             {
                 command.Parameters.AddWithValue("@FirstName", firstName);
                 command.Parameters.AddWithValue("@LastName", lastName);
@@ -96,12 +97,14 @@ DateOfBirth TEXT NOT NULL)";
         {
             string selectQuery = "SELECT * FROM Employees";
             using (var command = new SqliteCommand(selectQuery, connection))
-            using (var reader = command.ExecuteReader())
             {
-                Console.WriteLine("\n--- Employee List ---");
-                while (reader.Read())
+                using (var reader = command.ExecuteReader())
                 {
-                    Console.WriteLine($"ID: {reader["EmployeeID"]}, Name: {reader["FirstName"]}{reader["LastName"]}, DOB: {reader["DateOfBirth"]} ");
+                    Console.WriteLine("\n--- Employee List ---");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID: {reader["EmployeeID"]}, Name: {reader["FirstName"]}{reader["LastName"]}, DOB: {reader["DateOfBirth"]} ");
+                    }
                 }
             }
         }
@@ -110,17 +113,24 @@ DateOfBirth TEXT NOT NULL)";
         {
             Console.Write("Enter Employee ID to update: ");
             int employeeID = int.Parse(Console.ReadLine());
+
             Console.Write("Enter new First Name: ");
             string newFirstName = Console.ReadLine();
             Console.Write("Enter new Last Name: ");
             string newLastName = Console.ReadLine();
-            string updateQuery = "UPDATE Employees SET FirstName = @FirstName, LastName = @LastName WHERE EmployeeID = @EmployeeID";
+
+            string updateQuery = @"UPDATE Employees 
+                                    SET FirstName = @FirstName, LastName = @LastName 
+                                    WHERE EmployeeID = @EmployeeID";
+
             using (var command = new SqliteCommand(updateQuery, connection))
             {
                 command.Parameters.AddWithValue("@FirstName", newFirstName);
                 command.Parameters.AddWithValue("@LastName", newLastName);
                 command.Parameters.AddWithValue("@EmployeeID", employeeID);
                 int rowsAffected = command.ExecuteNonQuery();
+                //Console.Write("rows affected : " + rowsAffected);
+
                 if (rowsAffected > 0)
                 {
                     Console.WriteLine("Employee updated successfully.");
@@ -137,9 +147,11 @@ DateOfBirth TEXT NOT NULL)";
             Console.Write("Enter Employee ID to delete: ");
             int employeeID = int.Parse(Console.ReadLine());
             string deleteQuery = "DELETE FROM Employees WHERE EmployeeID = @EmployeeID";
+
             using (var command = new SqliteCommand(deleteQuery, connection))
             {
                 command.Parameters.AddWithValue("@EmployeeID", employeeID);
+                
                 int rowsAffected = command.ExecuteNonQuery();
                 if (rowsAffected > 0)
                 {

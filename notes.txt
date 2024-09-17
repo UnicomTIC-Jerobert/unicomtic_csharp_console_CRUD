@@ -1,0 +1,8 @@
+video -3 
+
+Going to see the Explanation of Code
+Figure out the coding flow
+Figure Out any Enhancement or bug fixes going to do
+
+This code have all things in single file
+more beginner friendly
