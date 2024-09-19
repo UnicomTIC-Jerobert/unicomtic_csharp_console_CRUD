@@ -13,3 +13,9 @@ video - 4
 we try to introduce "SELECT * FROM Employees where EmployeeId=@empId"
 understand how code gets duplicated
 understand whats the problem with current code
+
+video - 5
+
+Refactoring the code 
+- we try to refactor INSERT , UPDATE , DELETE
+

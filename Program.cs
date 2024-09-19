@@ -82,18 +82,19 @@ namespace EmployeeCRUDApp
             Console.Write("Enter Date of Birth (yyyy-mm-dd): ");
             string dob = Console.ReadLine();
 
-            string insertQuery = "INSERT INTO Employees (FirstName, LastName, DateOfBirth) VALUES(@FirstName, @LastName, @DateOfBirth)";
-            using (var command = new SqliteCommand(insertQuery, connection))
+            bool result = EmployeeRepository.CreateEmployee(connection, firstName, lastName, dob);
+
+            if (result == true)
             {
-                command.Parameters.AddWithValue("@FirstName", firstName);
-                command.Parameters.AddWithValue("@LastName", lastName);
-                command.Parameters.AddWithValue("@DateOfBirth", dob);
-                command.ExecuteNonQuery();
+                Console.WriteLine("Employee created successfully.");
             }
-            Console.WriteLine("Employee created successfully.");
+            else
+            {
+                Console.WriteLine("Failed to Create Employee.");
+            }
         }
         // List all employees
-        static void ListEmployees(SqliteConnection connection)
+        public static void ListEmployees(SqliteConnection connection)
         {
             string selectQuery = "SELECT * FROM Employees";
             using (var command = new SqliteCommand(selectQuery, connection))
@@ -123,26 +124,15 @@ namespace EmployeeCRUDApp
             Console.Write("Enter new Last Name: ");
             string newLastName = Console.ReadLine();
 
-            string updateQuery = @"UPDATE Employees 
-                                    SET FirstName = @FirstName, LastName = @LastName 
-                                    WHERE EmployeeID = @EmployeeID";
+            bool result = EmployeeRepository.UpdateEmployee(connection, newFirstName, newLastName, employeeID);
 
-            using (var command = new SqliteCommand(updateQuery, connection))
+            if (result == true)
             {
-                command.Parameters.AddWithValue("@FirstName", newFirstName);
-                command.Parameters.AddWithValue("@LastName", newLastName);
-                command.Parameters.AddWithValue("@EmployeeID", employeeID);
-                int rowsAffected = command.ExecuteNonQuery();
-                //Console.Write("rows affected : " + rowsAffected);
-
-                if (rowsAffected > 0)
-                {
-                    Console.WriteLine("Employee updated successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Employee not found.");
-                }
+                Console.WriteLine("Employee updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to Update Employee.");
             }
         }
         // Delete an employee
@@ -156,21 +146,14 @@ namespace EmployeeCRUDApp
             // SELECT * FROM Employees where EmployeeId=@empId
             // executeNonQuery
 
-            string deleteQuery = "DELETE FROM Employees WHERE EmployeeID = @EmployeeID";
-
-            using (var command = new SqliteCommand(deleteQuery, connection))
+            bool result = EmployeeRepository.DeleteEmployee(connection, employeeID);
+            if (result == true)
             {
-                command.Parameters.AddWithValue("@EmployeeID", employeeID);
-
-                int rowsAffected = command.ExecuteNonQuery();
-                if (rowsAffected > 0)
-                {
-                    Console.WriteLine("Employee deleted successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Employee not found.");
-                }
+                Console.WriteLine("Employee Deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to Delete Employee.");
             }
         }
     }
