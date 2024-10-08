@@ -27,17 +27,32 @@ namespace EmployeeCRUDApp
 
         }
 
-        // public static void ListEmployees(SqliteConnection connection)
-        // {
-        //     string selectQuery = "SELECT * FROM Employees";
-        //     using (var command = new SqliteCommand(selectQuery, connection))
-        //     {
-        //         using (var reader = command.ExecuteReader())
-        //         {
+        public static List<string[]> ListEmployees(SqliteConnection connection)
+        {
+            List<string[]> empList = new List<string[]>();
+            string selectQuery = "SELECT * FROM Employees";
+            using (var command = new SqliteCommand(selectQuery, connection))
+            {
+                using (var reader = command.ExecuteReader())
+                {
 
-        //         }
-        //     }
-        // }
+
+                    while (reader.Read())
+                    {
+                        string[] empArr = new string[4];
+
+                        empArr[0] = reader["EmployeeID"].ToString();
+                        empArr[1] = reader["FirstName"].ToString();
+                        empArr[2] = reader["LastName"].ToString();
+                        empArr[3] = reader["DateOfBirth"].ToString();
+
+                        empList.Add(empArr);
+                    }
+                }
+            }
+
+            return empList;
+        }
 
 
 
@@ -78,6 +93,7 @@ namespace EmployeeCRUDApp
                 command.Parameters.AddWithValue("@EmployeeID", employeeID);
 
                 int rowsAffected = command.ExecuteNonQuery();
+                
                 if (rowsAffected > 0)
                 {
                     return true;
