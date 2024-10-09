@@ -1,21 +1,13 @@
-video -3 
+string newFirstName;
 
-Going to see the Explanation of Code
-Figure out the coding flow
-Figure Out any Enhancement or bug fixes going to do
+do
+{
+    Console.Write("Enter new First Name: ");
+    newFirstName = Console.ReadLine().Trim(); // Trim the input to remove extra spaces
 
-This code have all things in single file
-more beginner friendly
+    if (string.IsNullOrEmpty(newFirstName))
+    {
+        Console.WriteLine("First Name is required.");
+    }
 
-
-video - 4
-
-we try to introduce "SELECT * FROM Employees where EmployeeId=@empId"
-understand how code gets duplicated
-understand whats the problem with current code
-
-video - 5
-
-Refactoring the code 
-- we try to refactor INSERT , UPDATE , DELETE
-
+} while (string.IsNullOrEmpty(newFirstName)); // Check if the trimmed string is empty

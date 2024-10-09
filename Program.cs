@@ -17,7 +17,8 @@ class Program
             Console.WriteLine("2. List Employees");
             Console.WriteLine("3. Update Employee");
             Console.WriteLine("4. Delete Employee");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("5. Search Employee");
+            Console.WriteLine("q. Exit");
             Console.Write("Select an option: ");
             string option = Console.ReadLine();
             using (var connection = OpenConnection())
@@ -41,6 +42,10 @@ class Program
                         DeleteEmployee(connection);
                         break;
                     case "5":
+                        Console.Clear(); // Clear the screen before searching an employee
+                        DisplayEmployee(connection);
+                        break;
+                    case "q":
                         exit = true;
                         break;
                     default:
@@ -62,7 +67,7 @@ class Program
         var connection = new SqliteConnection("Data Source=employee.db;");
         connection.Open();
         string createTableQuery = @"CREATE TABLE IF NOT EXISTS Employees (
-                EmployeeID INTEGER PRIMARY KEY AUTOINCREMENT,
+                EmployeeID TEXT PRIMARY KEY,
                 FirstName TEXT NOT NULL,
                 LastName TEXT NOT NULL,
                 DateOfBirth TEXT NOT NULL)";
@@ -75,14 +80,24 @@ class Program
     // Create a new employee
     static void CreateEmployee(SqliteConnection connection)
     {
-        Console.Write("Enter First Name: ");
+        Console.Write("Enter Employee ID : ");
+        string empId = Console.ReadLine();
+        Console.Write("Enter First Name : ");
         string firstName = Console.ReadLine();
-        Console.Write("Enter Last Name: ");
+        Console.Write("Enter Last Name : ");
         string lastName = Console.ReadLine();
-        Console.Write("Enter Date of Birth (yyyy-mm-dd): ");
+        Console.Write("Enter Date of Birth (yyyy-mm-dd) : ");
         string dob = Console.ReadLine();
 
-        bool result = EmployeeRepository.CreateEmployee(connection, firstName, lastName, dob);
+        Employee empObj = new Employee
+        {
+            EmployeeId = empId,
+            FirstName = firstName,
+            LastName = lastName,
+            DateOfBirth = dob
+        };
+
+        bool result = EmployeeRepository.CreateEmployee(connection, empObj);
 
         if (result == true)
         {
@@ -93,27 +108,42 @@ class Program
             Console.WriteLine("Failed to Create Employee.");
         }
     }
+
+    // Get Single Employee
+    public static void DisplayEmployee(SqliteConnection connection)
+    {
+        Console.Write("Enter Employee ID to Search : ");
+        string employeeId = Console.ReadLine();
+        Employee emp = EmployeeRepository.GetEmployeeById(connection, employeeId);
+
+        if (emp != null)
+        {
+            Console.WriteLine("\n --- Employee Details --- ");
+            Console.WriteLine($"ID: {emp.EmployeeId}\nName: {emp.FirstName} {emp.LastName}\nDOB: {emp.DateOfBirth}");
+        }
+        else
+        {
+            Console.WriteLine($"Employee with ID {employeeId} not found.");
+        }
+    }
+
     // List all employees
     public static void ListEmployees(SqliteConnection connection)
     {
-        string selectQuery = "SELECT * FROM Employees";
-        using (var command = new SqliteCommand(selectQuery, connection))
+        List<Employee> empList = EmployeeRepository.ListEmployees(connection);
+
+        Console.WriteLine("\n --- Employee List --- ");
+        foreach (Employee emp in empList)
         {
-            using (var reader = command.ExecuteReader())
-            {
-                Console.WriteLine("\n--- Employee List ---");
-                while (reader.Read())
-                {
-                    Console.WriteLine($"ID: {reader["EmployeeID"]}, Name: {reader["FirstName"]}{reader["LastName"]}, DOB: {reader["DateOfBirth"]} ");
-                }
-            }
+
+            Console.WriteLine($"ID: {emp.EmployeeId}, Name: {emp.FirstName}{emp.LastName}, DOB: {emp.DateOfBirth} ");
         }
     }
     // Update an employee
     static void UpdateEmployee(SqliteConnection connection)
     {
         Console.Write("Enter Employee ID to update: ");
-        int employeeID = int.Parse(Console.ReadLine());
+        string employeeID = Console.ReadLine();
 
         // to-do
         // SELECT * FROM Employees where EmployeeId=@empId
@@ -123,8 +153,18 @@ class Program
         string newFirstName = Console.ReadLine();
         Console.Write("Enter new Last Name: ");
         string newLastName = Console.ReadLine();
+        Console.Write("Enter new Date of Birth : ");
+        string newDOB = Console.ReadLine();
 
-        bool result = EmployeeRepository.UpdateEmployee(connection, newFirstName, newLastName, employeeID);
+        Employee empObj = new Employee
+        {
+            EmployeeId = employeeID,
+            FirstName = newFirstName,
+            LastName = newLastName,
+            DateOfBirth = newDOB
+        };
+
+        bool result = EmployeeRepository.UpdateEmployee(connection, empObj);
 
         if (result == true)
         {

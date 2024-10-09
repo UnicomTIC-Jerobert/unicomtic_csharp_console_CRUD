@@ -5,15 +5,16 @@ namespace EmployeeCRUDApp
     class EmployeeRepository
     {
 
-        public static bool CreateEmployee(SqliteConnection connection, string firstName, string lastName, string dob)
+        public static bool CreateEmployee(SqliteConnection connection, Employee employee)
         {
 
-            string insertQuery = "INSERT INTO Employees (FirstName, LastName, DateOfBirth) VALUES(@FirstName, @LastName, @DateOfBirth)";
+            string insertQuery = "INSERT INTO Employees (EmployeeID,FirstName, LastName, DateOfBirth) VALUES(@EmployeeID,@FirstName, @LastName, @DateOfBirth)";
             using (var command = new SqliteCommand(insertQuery, connection))
             {
-                command.Parameters.AddWithValue("@FirstName", firstName);
-                command.Parameters.AddWithValue("@LastName", lastName);
-                command.Parameters.AddWithValue("@DateOfBirth", dob);
+                command.Parameters.AddWithValue("@EmployeeID", employee.EmployeeId);
+                command.Parameters.AddWithValue("@FirstName", employee.FirstName);
+                command.Parameters.AddWithValue("@LastName", employee.LastName);
+                command.Parameters.AddWithValue("@DateOfBirth", employee.DateOfBirth);
                 int rowsAffected = command.ExecuteNonQuery();
                 if (rowsAffected > 0)
                 {
@@ -27,9 +28,37 @@ namespace EmployeeCRUDApp
 
         }
 
-        public static List<string[]> ListEmployees(SqliteConnection connection)
+        public static Employee GetEmployeeById(SqliteConnection connection, string employeeId)
         {
-            List<string[]> empList = new List<string[]>();
+            Employee empObj = null;
+            string selectQuery = "SELECT * FROM Employees WHERE EmployeeID = @EmployeeID";
+
+            using (var command = new SqliteCommand(selectQuery, connection))
+            {
+                // Add parameter to prevent SQL injection
+                command.Parameters.AddWithValue("@EmployeeID", employeeId);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read()) // Since it's fetching a single employee, no need for a while loop
+                    {
+                        empObj = new Employee
+                        {
+                            EmployeeId = reader["EmployeeID"].ToString(),
+                            FirstName = reader["FirstName"].ToString(),
+                            LastName = reader["LastName"].ToString(),
+                            DateOfBirth = reader["DateOfBirth"].ToString()
+                        };
+                    }
+                }
+            }
+
+            return empObj;
+        }
+
+        public static List<Employee> ListEmployees(SqliteConnection connection)
+        {
+            List<Employee> empList = new List<Employee>();
             string selectQuery = "SELECT * FROM Employees";
             using (var command = new SqliteCommand(selectQuery, connection))
             {
@@ -39,14 +68,15 @@ namespace EmployeeCRUDApp
 
                     while (reader.Read())
                     {
-                        string[] empArr = new string[4];
+                        Employee empObj = new Employee
+                        {
+                            EmployeeId = reader["EmployeeID"].ToString(),
+                            FirstName = reader["FirstName"].ToString(),
+                            LastName = reader["LastName"].ToString(),
+                            DateOfBirth = reader["DateOfBirth"].ToString()
+                        };
 
-                        empArr[0] = reader["EmployeeID"].ToString();
-                        empArr[1] = reader["FirstName"].ToString();
-                        empArr[2] = reader["LastName"].ToString();
-                        empArr[3] = reader["DateOfBirth"].ToString();
-
-                        empList.Add(empArr);
+                        empList.Add(empObj);
                     }
                 }
             }
@@ -54,20 +84,19 @@ namespace EmployeeCRUDApp
             return empList;
         }
 
-
-
-        public static bool UpdateEmployee(SqliteConnection connection, string newFirstName, string newLastName, int employeeID)
+        public static bool UpdateEmployee(SqliteConnection connection, Employee employee)
         {
 
             string updateQuery = @"UPDATE Employees 
-                                    SET FirstName = @FirstName, LastName = @LastName 
+                                    SET FirstName = @FirstName, LastName = @LastName, DateOfBirth = @DateOfBirth 
                                     WHERE EmployeeID = @EmployeeID";
 
             using (var command = new SqliteCommand(updateQuery, connection))
             {
-                command.Parameters.AddWithValue("@FirstName", newFirstName);
-                command.Parameters.AddWithValue("@LastName", newLastName);
-                command.Parameters.AddWithValue("@EmployeeID", employeeID);
+                command.Parameters.AddWithValue("@FirstName", employee.FirstName);
+                command.Parameters.AddWithValue("@LastName", employee.LastName);
+                command.Parameters.AddWithValue("@DateOfBirth", employee.DateOfBirth);
+                command.Parameters.AddWithValue("@EmployeeID", employee.EmployeeId);
                 int rowsAffected = command.ExecuteNonQuery();
                 //Console.Write("rows affected : " + rowsAffected);
 
@@ -93,7 +122,7 @@ namespace EmployeeCRUDApp
                 command.Parameters.AddWithValue("@EmployeeID", employeeID);
 
                 int rowsAffected = command.ExecuteNonQuery();
-                
+
                 if (rowsAffected > 0)
                 {
                     return true;
